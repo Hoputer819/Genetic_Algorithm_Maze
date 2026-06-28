@@ -47,7 +47,7 @@ public class MazeGenerator {
         }
     }
 
-    //미로 방문 여부 출력 메서드
+    //미로 방문 여부 출력 메서드(추후 삭제)
     public void visitedPrint(){
         for(int i = 0; i < height; i++){
             for(int j = 0; j < width; j++){
@@ -57,8 +57,16 @@ public class MazeGenerator {
         }
     }
 
+    //미로 사방 출력 메서드(추후 삭제)
+    private void directionPrint(){
+        for(int i = 0; i < 4; i++) {
+            System.out.print(direction[i]);
+            System.out.print(" ");
+        }
+    }
+
     //미로 사방 확인 메서드(완성)
-    private void check(){
+    private void check(int x,int y){
         for (int i = 0; i < 4; i++) {
             direction[i] = false;
         }
@@ -70,8 +78,8 @@ public class MazeGenerator {
         }
     }
 
-    //미로 벽 생성 조건 메서드
-    private boolean wallCheck(){
+    //미로 벽 생성 조건 메서드(완성)
+    private boolean wallCheck(int x,int y ){
         int count = 0;
 
         for (int i = 0; i < 2; i++) {
@@ -99,17 +107,6 @@ public class MazeGenerator {
         y_coordinate.push(y);
     }
 
-    //미로 모두 방문 여부(완성)
-    private boolean allVisited(){
-        for(int i = 0; i < height; i++) {
-            for (int j = 0; j < width; j++) {
-                if (mazeVisited[i][j])
-                    return true;
-            }
-        }
-        return false;
-    }
-
     //사방이 벽인지 확인 메서드(완성)
     private boolean allWall(){
         for(int i = 0; i < 4; i++) {
@@ -125,16 +122,22 @@ public class MazeGenerator {
             int move_direction;//움직일 방향 변수
 
             mark();
-            check();
             for(int i = 0; i < height; i++) {
                 for (int j = 0; j < width; j++) {
                     if(!mazeVisited[i][j]){
-                        if(wallCheck()){
+                        if(wallCheck(j,i)){
                             mazeVisited[i][j] = true;
                         }
                     }
                 }
             }
+            check(x,y);
+            mapPrint();
+            System.out.println();
+            visitedPrint();
+            System.out.println();
+            directionPrint();
+            System.out.println();
             if(allWall()){
                 backTracking();
                 break;
@@ -160,33 +163,23 @@ public class MazeGenerator {
                     y -= 1;
                     break;
             }
-            mapPrint();
-            System.out.println();
-            visitedPrint();
-            System.out.println();
         }
     }
 
     //미로 백트래킹 메서드(완성)
     private void backTracking() {
-        while (allVisited()) {
-            int move_direction;//움직일 방향 변수
+        int move_direction;//움직일 방향 변수
 
-            if(!x_coordinate.isEmpty() && !y_coordinate.isEmpty()) {
+        while(allWall()) {
+            if (!x_coordinate.isEmpty() && !y_coordinate.isEmpty()) {
                 x = x_coordinate.pop();
                 y = y_coordinate.pop();
             }
-            else
+            else {
                 end = true;
-            while (true) {
-                move_direction = random.nextInt(4);
-                if (!direction[move_direction]) {
-                    continue;
-                }
                 break;
             }
-
-            generate();
+            check(x, y);
         }
     }
 }
