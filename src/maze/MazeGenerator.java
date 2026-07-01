@@ -44,14 +44,22 @@ public class MazeGenerator {
         for(int i = 0; i < height; i++){
             for(int j = 0; j < width; j++) {
                 map[i][j] = new Cell();
-                if(i == 0)
+                if(i == 0) {
+                    map[i][j].direction[2] = true;
                     map[i][j].wall[2] = true;
-                if(i == height-1)
+                }
+                if(i == height-1) {
+                    map[i][j].direction[3] = true;
                     map[i][j].wall[3] = true;
-                if(j == 0)
+                }
+                if(j == 0){
+                    map[i][j].direction[1] = true;
                     map[i][j].wall[1] = true;
-                if(j == width-1)
+                }
+                if(j == width-1) {
+                    map[i][j].direction[0] = true;
                     map[i][j].wall[0] = true;
+                }
             }
         }
     }
@@ -68,97 +76,77 @@ public class MazeGenerator {
         }
     }
 
-    //미로 길 만들기 메서드
-    private void mapMove(int direction){
-        map[y][x].visited = true;
-        x_coordinate.push(x);
-        y_coordinate.push(y);
-        map[y][x].wall[direction] = true;
-        switch(direction){
-            case 0:
-                x += 1;
-                break;
-            case 1:
-                x -= 1;
-                break;
-            case 2:
-                y -= 1;
-                break;
-            case 3:
-                y += 1;
-                break;
-        }
-    }
-
-    //갔던 길이면 돌아가기 메서드
-    private void mapBack(int direction){
-        switch(direction){
-            case 0:
-                x -= 1;
-                break;
-            case 1:
-                x += 1;
-                break;
-            case 2:
-                y += 1;
-                break;
-            case 3:
-                y -= 1;
-                break;
-        }
-        x_coordinate.pop();
-        y_coordinate.pop();
-        map[y][x].wall[direction] = false;
-    }
-
     //모든 벽 벽인지 확인 메서드
     private boolean allWall(){
         int count = 0;
 
-        for(int i = 0; i < map[y][x].wall.length; i++){
-            if(map[y][x].wall[i])
+        for(int i = 0; i < map[y][x].direction.length; i++){
+            if(map[y][x].direction[i])
                 count++;
         }
 
-        return count == map[y][x].wall.length;
+        return count == map[y][x].direction.length;
     }
 
     //맵 생성 메서드
     public void generate() {
-        int direction;
+        int moveDirection;
+        int p_x;
+        int p_y;
+
         while(true) {
             //모두 벽일때 백트래킹 실행
             if(allWall()) {
-                backTracking();
-                break;
+                if(x_coordinate.isEmpty() || y_coordinate.isEmpty())
+                    break;
+
+                x = x_coordinate.pop();
+                y = y_coordinate.pop();
+                continue;
             }
+
+            p_x = x;
+            p_y = y;
 
             //갈 방향 랜덤으로 정하기
             do{
-                direction = random.nextInt(map[y][x].wall.length);
-            } while (map[y][x].wall[direction]);
+                moveDirection = random.nextInt(map[y][x].direction.length);
+            } while (map[y][x].direction[moveDirection]);
+
+            map[y][x].direction[moveDirection] = true;
 
             //움직이기
-            mapMove(direction);
+            switch(moveDirection){
+                case 0:
+                    x += 1;
+                    break;
+                case 1:
+                    x -= 1;
+                    break;
+                case 2:
+                    y -= 1;
+                    break;
+                case 3:
+                    y += 1;
+                    break;
+            }
 
-            //왔던 곳이면 원래대로 돌아가기
+
+            //갔던 곳이면 원래대로 돌아가기
             if (map[y][x].visited) {
-                mapBack(direction);
+                x = p_x;
+                y = p_y;
                 continue;
             }
-            System.out.print("왔다");
+
+            map[y][x].visited = true;
+
+            x_coordinate.push(p_x);
+            y_coordinate.push(p_y);
+
+            map[y][x].wall[moveDirection] = true;
         }
     }
 
-    //맵 백트래킹
-    private void backTracking(){
-        x = x_coordinate.pop();
-        y = y_coordinate.pop();
-        //스택이 비어있으면
-        if(x_coordinate.isEmpty() && y_coordinate.isEmpty())
-            return;
-
-        generate();
-    }
 }
 
