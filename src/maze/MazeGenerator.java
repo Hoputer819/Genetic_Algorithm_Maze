@@ -46,22 +46,19 @@ public class MazeGenerator {
                 map[i][j] = new Cell();
                 if(i == 0) {
                     map[i][j].direction[2] = true;
-                    map[i][j].wall[2] = true;
                 }
                 if(i == height-1) {
                     map[i][j].direction[3] = true;
-                    map[i][j].wall[3] = true;
                 }
                 if(j == 0){
                     map[i][j].direction[1] = true;
-                    map[i][j].wall[1] = true;
                 }
                 if(j == width-1) {
                     map[i][j].direction[0] = true;
-                    map[i][j].wall[0] = true;
                 }
             }
         }
+        map[y][x].visited = true;
     }
 
     //Cell 사방 확인 프린트(나중에 수정 필요)
@@ -119,18 +116,21 @@ public class MazeGenerator {
             switch(moveDirection){
                 case 0:
                     x += 1;
+                    map[y][x].direction[moveDirection+1] = true;
                     break;
                 case 1:
                     x -= 1;
+                    map[y][x].direction[moveDirection-1] = true;
                     break;
                 case 2:
                     y -= 1;
+                    map[y][x].direction[moveDirection+1] = true;
                     break;
                 case 3:
                     y += 1;
+                    map[y][x].direction[moveDirection-1] = true;
                     break;
             }
-
 
             //갔던 곳이면 원래대로 돌아가기
             if (map[y][x].visited) {
@@ -144,7 +144,15 @@ public class MazeGenerator {
             x_coordinate.push(p_x);
             y_coordinate.push(p_y);
 
-            map[y][x].wall[moveDirection] = true;
+            map[p_y][p_x].wall[moveDirection] = true;
+            switch(moveDirection){
+                case 0, 2:
+                    map[y][x].wall[moveDirection+1] = true;
+                    break;
+                case 1, 3:
+                    map[y][x].wall[moveDirection-1] = true;
+                    break;
+            }
         }
     }
 
