@@ -1,9 +1,13 @@
+import javafx.application.Application;
 import maze.MazeGenerator;
+import visualization.WindowGenerator;
 
 public class Main {
     public static void main(String[] args) {
-        MazeGenerator maze = new MazeGenerator(5,5);
+        MazeGenerator maze = new MazeGenerator(25,25);
         maze.generate();
-        maze.mapPrint();
+
+        WindowGenerator.maze = maze;
+        Application.launch(WindowGenerator.class);
     }
 }

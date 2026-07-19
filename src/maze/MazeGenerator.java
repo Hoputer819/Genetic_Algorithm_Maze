@@ -11,8 +11,8 @@ public class MazeGenerator {
     Random random = new Random();
 
     //미로 크기 변수
-    private final int width;
-    private final int height;
+    public final int width;
+    public final int height;
 
     //미로 좌표 저장 스택
     Stack<Integer> x_coordinate = new Stack<>();
