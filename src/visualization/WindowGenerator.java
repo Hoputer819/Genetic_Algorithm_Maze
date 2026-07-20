@@ -41,6 +41,10 @@ public class WindowGenerator extends Application{
                     line.setFill(Color.RED);
                     line.fillRect(pen_x+1, pen_y+1, cell_x-1, cell_y-1);
                 }
+                if(i == maze.last_y && j == maze.last_x) {
+                    line.setFill(Color.BLUE);
+                    line.fillRect(pen_x+1, pen_y+1, cell_x-1, cell_y-1);
+                }
                 for(int k = 0; k < 4; k++){
                     if(!maze.map[i][j].wall[k]){
                         switch(k){

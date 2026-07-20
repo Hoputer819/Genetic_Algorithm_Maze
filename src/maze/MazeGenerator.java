@@ -2,6 +2,7 @@ package maze;
 
 import java.util.Random;
 import java.util.Stack;
+import java.util.ArrayDeque;
 
 public class MazeGenerator {
     //cell 클래스 객체 생성
@@ -18,12 +19,21 @@ public class MazeGenerator {
     Stack<Integer> x_coordinate = new Stack<>();
     Stack<Integer> y_coordinate = new Stack<>();
 
+    //미로 좌표 저장 큐
+    ArrayDeque<Integer> x_queue = new ArrayDeque<>();
+    ArrayDeque<Integer> y_queue = new ArrayDeque<>();
+
     //미로 좌표 변수
     private int x;
     private int y;
 
+    //미로 끝좌표 변수
+    public int last_x;
+    public int last_y;
+
     //미로 배열
     public Cell[][] map;
+    private int[][] last_map;
 
     //---------------------------프로그램--------------------------------
 
@@ -38,9 +48,11 @@ public class MazeGenerator {
     //리셋 메서드(좌표 시작 위치로 초기화,미로 배열 초기화)
     private void reset(){
         map = new Cell[height][width];
+        last_map = new int[height][width];
         x = 0;
         y = height-1;
 
+        //미로 초기화
         for(int i = 0; i < height; i++){
             for(int j = 0; j < width; j++) {
                 map[i][j] = new Cell();
@@ -59,18 +71,16 @@ public class MazeGenerator {
             }
         }
         map[y][x].visited = true;
-    }
 
-    //Cell 사방 확인 프린트(나중에 수정 필요)
-    public void mapPrint(){
+        //끝지점 지정 미로 초기화
         for(int i = 0; i < height; i++){
-            for(int j = 0; j < width; j++) {
-                for(int k = 0; k < 4; k++)
-                    System.out.printf("%b ",map[i][j].wall[k]);
-                System.out.print("  ");
+            for(int j = 0; j < width; j++){
+                last_map[i][j] = -1;
             }
-            System.out.println();
         }
+        x_queue.add(0);
+        y_queue.add(height-1);
+        last_map[height-1][0] = 0;
     }
 
     //모든 벽 벽인지 확인 메서드
@@ -91,6 +101,7 @@ public class MazeGenerator {
         int p_x;
         int p_y;
 
+        //미로 만들기 메서드(Stack,DFS)
         while(true) {
             //모두 벽일때 백트래킹 실행
             if(allWall()) {
@@ -154,6 +165,56 @@ public class MazeGenerator {
                     break;
             }
         }
+
+        //미로 끝지점 정하기 메서드(Queue,BFS)
+        while(!x_queue.isEmpty() && !y_queue.isEmpty()){
+            last_x = x_queue.poll();
+            last_y = y_queue.poll();
+            for(int i = 0; i < 4; i++){
+                if(map[last_y][last_x].wall[i]){
+                    switch(i){
+                        case 0:
+                            if(last_map[last_y][last_x+1] == -1) {
+                                last_map[last_y][last_x+1] = last_map[last_y][last_x] + 1;
+                                x_queue.add(last_x + 1);
+                                y_queue.add(last_y);
+                            }
+                            break;
+                        case 1:
+                            if(last_map[last_y][last_x-1] == -1) {
+                                last_map[last_y][last_x-1] = last_map[last_y][last_x] + 1;
+                                x_queue.add(last_x - 1);
+                                y_queue.add(last_y);
+                            }
+                            break;
+                        case 2:
+                            if(last_map[last_y-1][last_x] == -1) {
+                                last_map[last_y-1][last_x] = last_map[last_y][last_x] + 1;
+                                x_queue.add(last_x);
+                                y_queue.add(last_y - 1);
+                            }
+                            break;
+                        case 3:
+                            if(last_map[last_y+1][last_x] == -1) {
+                                last_map[last_y+1][last_x] = last_map[last_y][last_x] + 1;
+                                x_queue.add(last_x);
+                                y_queue.add(last_y + 1);
+                            }
+                            break;
+                    }
+                }
+
+            }
+        }
+        for(int i = 0; i < height; i++){
+            for(int j = 0; j < width; j++){
+                if(last_map[i][j] > last_map[last_y][last_x]){
+                    last_x = j;
+                    last_y = i;
+                }
+            }
+        }
+
     }
 
 }
