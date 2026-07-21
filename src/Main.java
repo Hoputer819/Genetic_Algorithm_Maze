@@ -4,7 +4,7 @@ import visualization.WindowGenerator;
 
 public class Main {
     public static void main(String[] args) {
-        MazeGenerator maze = new MazeGenerator(10,10);
+        MazeGenerator maze = new MazeGenerator(10);
         maze.generate();
 
         WindowGenerator.maze = maze;

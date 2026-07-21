@@ -5,15 +5,11 @@ import java.util.Stack;
 import java.util.ArrayDeque;
 
 public class MazeGenerator {
-    //cell 클래스 객체 생성
-    Cell cell = new Cell();
-
     //Random 객체 생성
     Random random = new Random();
 
     //미로 크기 변수
-    public final int width;
-    public final int height;
+    public final int size;
 
     //미로 좌표 저장 스택
     Stack<Integer> x_coordinate = new Stack<>();
@@ -37,35 +33,34 @@ public class MazeGenerator {
 
     //---------------------------프로그램--------------------------------
 
-    //생성자(미로 크기 받기,리셋 메서드 호출)
-    public MazeGenerator(int width,int height){
-        this.width = width;
-        this.height = height;
+    //생성자
+    public MazeGenerator(int size){
+        this.size = size;
 
         reset();
     }
 
-    //리셋 메서드(좌표 시작 위치로 초기화,미로 배열 초기화)
+    //리셋 메서드
     private void reset(){
-        map = new Cell[height][width];
-        last_map = new int[height][width];
+        map = new Cell[size][size];
+        last_map = new int[size][size];
         x = 0;
-        y = height-1;
+        y = size-1;
 
         //미로 초기화
-        for(int i = 0; i < height; i++){
-            for(int j = 0; j < width; j++) {
+        for(int i = 0; i < size; i++){
+            for(int j = 0; j < size; j++) {
                 map[i][j] = new Cell();
                 if(i == 0) {
                     map[i][j].direction[2] = true;
                 }
-                if(i == height-1) {
+                if(i == size-1) {
                     map[i][j].direction[3] = true;
                 }
                 if(j == 0){
                     map[i][j].direction[1] = true;
                 }
-                if(j == width-1) {
+                if(j == size-1) {
                     map[i][j].direction[0] = true;
                 }
             }
@@ -73,14 +68,14 @@ public class MazeGenerator {
         map[y][x].visited = true;
 
         //끝지점 지정 미로 초기화
-        for(int i = 0; i < height; i++){
-            for(int j = 0; j < width; j++){
+        for(int i = 0; i < size; i++){
+            for(int j = 0; j < size; j++){
                 last_map[i][j] = -1;
             }
         }
         x_queue.add(0);
-        y_queue.add(height-1);
-        last_map[height-1][0] = 0;
+        y_queue.add(size-1);
+        last_map[size-1][0] = 0;
     }
 
     //모든 벽 벽인지 확인 메서드
@@ -206,8 +201,8 @@ public class MazeGenerator {
 
             }
         }
-        for(int i = 0; i < height; i++){
-            for(int j = 0; j < width; j++){
+        for(int i = 0; i < size; i++){
+            for(int j = 0; j < size; j++){
                 if(last_map[i][j] > last_map[last_y][last_x]){
                     last_x = j;
                     last_y = i;

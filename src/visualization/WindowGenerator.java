@@ -20,8 +20,8 @@ public class WindowGenerator extends Application{
         GraphicsContext line = canvas.getGraphicsContext2D();
         int pen_x = 50;
         int pen_y = 50;
-        int cell_x = 500/maze.width;
-        int cell_y = 500/maze.height;
+        int cell_x = 500/maze.size;
+        int cell_y = 500/maze.size;
 
         //창 이름
         stage.setTitle("Genetic_Algorithm");
@@ -35,9 +35,9 @@ public class WindowGenerator extends Application{
         root.getChildren().add(canvas);
 
 
-        for(int i = 0; i < maze.height; i++){
-            for(int j = 0; j < maze.width; j++){
-                if(i == maze.height-1 && j == 0) {
+        for(int i = 0; i < maze.size; i++){
+            for(int j = 0; j < maze.size; j++){
+                if(i == maze.size-1 && j == 0) {
                     line.setFill(Color.RED);
                     line.fillRect(pen_x+1, pen_y+1, cell_x-1, cell_y-1);
                 }
