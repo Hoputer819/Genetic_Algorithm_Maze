@@ -1,36 +1,72 @@
 package genetic;
 
-import genetic.Individual;
+import java.util.Random;
 import java.util.ArrayList;
+import maze.MazeGenerator;
 
 public class GeneticMover {
+
+    public static MazeGenerator maze;
+    Random random = new Random();
+
+    int individual_num;
+    int gene_num;
+
     //객체 배열
     ArrayList<Individual> current_population = new ArrayList<>();
     ArrayList<Individual> next_population = new ArrayList<>();
 
     //생성자
     public GeneticMover(int size){
-        for(int i = 0; i < (size * size)/2; i++){
-            current_population.add(new Individual(size));
-            next_population.add(new Individual(size));
+        individual_num =  (size * size)/2;
+        gene_num = (size * size) * 2;
+        for(int i = 0; i < individual_num; i++){
+            current_population.add(new Individual(gene_num));
+            next_population.add(new Individual(gene_num));
         }
+        gene_reset();
     }
 
-    /*
-    초기화 메서드
+    //유전자 초기화 메서드
+    private void gene_reset(){
+        for(int i =  0; i < individual_num; i++){
+            for(int j = 0; j < gene_num; j++)
+                current_population.get(i).gene[j] = random.nextInt(4);
+        }
+    }// 0 : 오른쪽, 1 : 왼쪽, 2 : 위, 3 : 아래
 
-        1.랜덤 방향 유전자로 초기 개체 생성
-     */
+    //선택 메서드
+    private void selection(){
+        int p_gene = -1;
 
+
+        for(int i =  0; i < individual_num; i++){
+            //갔던길을 한번 더 가면 -
+            for(int j = 0; j < gene_num; j++){
+                if(current_population.get(i).gene[j] == p_gene)
+                    current_population.get(i).fitness -= 10;
+                p_gene = current_population.get(i).gene[j];
+            }
+            p_gene = -1;
+
+            //이동한 유전자 길이 -
+            current_population.get(i).fitness -= (current_population.get(i).cell_move) * 5;
+
+            //목적지와의 거리(BFS 활용) +
+            current_population.get(i).fitness += (maze.last_map[maze.last_y][maze.last_x] - maze.last_map[current_population.get(i).current_y][current_population.get(i).current_x]);
+
+            //움직인 칸 수 +
+            current_population.get(i).fitness += current_population.get(i).cell_move * 10;
+
+            //목적지 도착 +
+            if(current_population.get(i).current_x == maze.last_x && current_population.get(i).current_y == maze.last_y)
+                current_population.get(i).fitness += 1000;
+        }
+
+
+    }
     /*
     선택 메서드
-
-        1.적합도 평가
-        * 갔던길을 한번 더 가면 -
-        * 이동한 유전자 길이 -
-        * 움직인 칸 수 +
-        * 목적지 도착 +
-        * 목적지와의 거리(BFS 활용) +
 
         2.내림차순 정렬
 

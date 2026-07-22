@@ -29,7 +29,7 @@ public class MazeGenerator {
 
     //미로 배열
     public Cell[][] map;
-    private int[][] last_map;
+    public int[][] last_map;
 
     //---------------------------프로그램--------------------------------
 
