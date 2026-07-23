@@ -30,6 +30,7 @@ public class MazeGenerator {
     //미로 배열
     public Cell[][] map;
     public int[][] last_map;
+    public int[][] back_map;
 
     //---------------------------프로그램--------------------------------
 
@@ -44,6 +45,7 @@ public class MazeGenerator {
     private void reset(){
         map = new Cell[size][size];
         last_map = new int[size][size];
+        back_map = new int[size][size];
         x = 0;
         y = size-1;
 
@@ -71,6 +73,7 @@ public class MazeGenerator {
         for(int i = 0; i < size; i++){
             for(int j = 0; j < size; j++){
                 last_map[i][j] = -1;
+                back_map[i][j] = -1;
             }
         }
         x_queue.add(0);
@@ -91,7 +94,7 @@ public class MazeGenerator {
     }
 
     //맵 생성 메서드
-    public void generate() {
+    public void generate(){
         int moveDirection;
         int p_x;
         int p_y;
@@ -210,7 +213,56 @@ public class MazeGenerator {
             }
         }
 
+        back_bfs();
     }
 
+    //목적지부터 출발지까지의 bfs
+    public void back_bfs(){
+        int bfs_x;
+        int bfs_y;
+        back_map[last_y][last_x] = 0;
+        x_queue.add(last_x);
+        y_queue.add(last_y);
+
+        while(!x_queue.isEmpty() && !y_queue.isEmpty()){
+            bfs_x = x_queue.poll();
+            bfs_y = y_queue.poll();
+            for(int i = 0; i < 4; i++){
+                if(map[bfs_y][bfs_x].wall[i]){
+                    switch(i){
+                        case 0:
+                            if(back_map[bfs_y][bfs_x+1] == -1) {
+                                back_map[bfs_y][bfs_x+1] = back_map[bfs_y][bfs_x] + 1;
+                                x_queue.add(bfs_x + 1);
+                                y_queue.add(bfs_y);
+                            }
+                            break;
+                        case 1:
+                            if(back_map[bfs_y][bfs_x-1] == -1) {
+                                back_map[bfs_y][bfs_x-1] = back_map[bfs_y][bfs_x] + 1;
+                                x_queue.add(bfs_x - 1);
+                                y_queue.add(bfs_y);
+                            }
+                            break;
+                        case 2:
+                            if(back_map[bfs_y-1][bfs_x] == -1) {
+                                back_map[bfs_y-1][bfs_x] = back_map[bfs_y][bfs_x] + 1;
+                                x_queue.add(bfs_x);
+                                y_queue.add(bfs_y - 1);
+                            }
+                            break;
+                        case 3:
+                            if(back_map[bfs_y+1][bfs_x] == -1) {
+                                back_map[bfs_y+1][bfs_x] = back_map[bfs_y][bfs_x] + 1;
+                                x_queue.add(bfs_x);
+                                y_queue.add(bfs_y + 1);
+                            }
+                            break;
+                    }
+                }
+
+            }
+        }
+    }
 }
 

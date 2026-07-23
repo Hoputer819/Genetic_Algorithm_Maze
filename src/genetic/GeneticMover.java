@@ -12,14 +12,14 @@ public class GeneticMover {
     int individual_num;
     int gene_num;
 
-    //객체 배열
+    //객체 리스트
     ArrayList<Individual> current_population = new ArrayList<>();
     ArrayList<Individual> next_population = new ArrayList<>();
 
     //생성자
-    public GeneticMover(int size){
-        individual_num =  (size * size)/2;
-        gene_num = (size * size) * 2;
+    public GeneticMover(){
+        individual_num =  (maze.size * maze.size)/2;
+        gene_num = (maze.size * maze.size) * 2;
         for(int i = 0; i < individual_num; i++){
             current_population.add(new Individual(gene_num));
             next_population.add(new Individual(gene_num));
@@ -37,40 +37,51 @@ public class GeneticMover {
 
     //선택 메서드
     private void selection(){
-        int p_gene = -1;
+        int visit_again = 0;
+        int big_individual;
+        int max_distance = maze.last_map[maze.size-1][0];
+        Individual temp;
 
-
+        //적합도 평가
         for(int i =  0; i < individual_num; i++){
-            //갔던길을 한번 더 가면 -
-            for(int j = 0; j < gene_num; j++){
-                if(current_population.get(i).gene[j] == p_gene)
-                    current_population.get(i).fitness -= 10;
-                p_gene = current_population.get(i).gene[j];
-            }
-            p_gene = -1;
 
-            //이동한 유전자 길이 -
-            current_population.get(i).fitness -= (current_population.get(i).cell_move) * 5;
+            //갔던길을 한번 더 가면 -
+            for(int j = 0; j < maze.size; j++){
+                for(int k = 0; k < maze.size; k++){
+                    if(current_population.get(i).visited[j][k] > 1)
+                        visit_again += (current_population.get(i).visited[j][k] - 1);
+                }
+            }
+            current_population.get(i).fitness -= visit_again * 10;
 
             //목적지와의 거리(BFS 활용) +
-            current_population.get(i).fitness += (maze.last_map[maze.last_y][maze.last_x] - maze.last_map[current_population.get(i).current_y][current_population.get(i).current_x]);
+            current_population.get(i).fitness += (max_distance - maze.back_map[current_population.get(i).die_y][current_population.get(i).die_x]) * 20;
 
             //움직인 칸 수 +
             current_population.get(i).fitness += current_population.get(i).cell_move * 10;
 
             //목적지 도착 +
-            if(current_population.get(i).current_x == maze.last_x && current_population.get(i).current_y == maze.last_y)
-                current_population.get(i).fitness += 1000;
+            if(current_population.get(i).die_x == maze.last_x && current_population.get(i).die_y == maze.last_y) {
+                //이동한 유전자 길이 -
+                current_population.get(i).fitness -= (current_population.get(i).cell_move) * 20;
+                current_population.get(i).fitness += 100000;
+            }
         }
 
+        //내림차순 정렬(선택 정렬)
+        for(int i = 0; i < individual_num-1; i++){
+            big_individual = i;
+            for(int j = i+1; j < individual_num; j++){
+                if(current_population.get(j).fitness > current_population.get(big_individual).fitness)
+                    big_individual = j;
+            }
+
+            temp = current_population.get(i);
+            current_population.set(i,current_population.get(big_individual));
+            current_population.set(big_individual,temp);
+        }
 
     }
-    /*
-    선택 메서드
-
-        2.내림차순 정렬
-
-     */
 
     /*
     교차 메서드
