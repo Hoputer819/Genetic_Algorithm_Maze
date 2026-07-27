@@ -12,8 +12,7 @@ public class GeneticMover {
     int individual_num;
     int gene_num;
     int elite_count;
-    int run_x;
-    int run_y;
+    int gene_count;
     double individual_mutation_rate;
     double gene_mutation_rate;
 
@@ -28,7 +27,7 @@ public class GeneticMover {
         gene_mutation_rate = 1.0 * (maze.size) / gene_num;
         elite_count = maze.size >= 10  ? (int)(individual_num * 0.1) : 2;
         for(int i = 0; i < individual_num; i++){
-            population.add(new Individual(gene_num));
+            population.add(new Individual(gene_num, maze.size));
         }
         gene_reset();
     }
@@ -62,13 +61,13 @@ public class GeneticMover {
             population.get(i).fitness -= visit_again * 10;
 
             //목적지와의 거리(BFS 활용) +
-            population.get(i).fitness += (max_distance - maze.back_map[population.get(i).die_y][population.get(i).die_x]) * 20;
+            population.get(i).fitness += (max_distance - maze.back_map[population.get(i).current_y][population.get(i).current_x]) * 20;
 
             //움직인 칸 수 +
             population.get(i).fitness += population.get(i).cell_move * 10;
 
             //목적지 도착 +
-            if(population.get(i).die_x == maze.last_x && population.get(i).die_y == maze.last_y) {
+            if(population.get(i).current_x == maze.last_x && population.get(i).current_y == maze.last_y) {
                 //이동한 유전자 길이 -
                 population.get(i).fitness -= (population.get(i).cell_move) * 20;
                 population.get(i).fitness += 100000;
@@ -123,94 +122,99 @@ public class GeneticMover {
     }
 
     //대치 메서드
-    private void replace(){
+    public void replace(){
 
         selection();
         crossover();
         mutation();
+
+        for(int k = 0; k < individual_num; k++){
+            population.get(k).fitness = 0;
+            population.get(k).cell_move = 0;
+            population.get(k).current_x = 0;
+            population.get(k).current_y = maze.size - 1;
+            population.get(k).die = false;
+            for(int l = 0; l < maze.size; l++){
+                for(int m = 0; m < maze.size; m++)
+                    population.get(k).visited[l][m] = 0;
+            }
+            population.get(k).visited[maze.size-1][0] = 1;
+        }
     }
 
     //개체 움직이기 메서드
     public void run(){
 
-        do {
-            for(int k = 0; k < individual_num; k++){
-                population.get(k).fitness = 0;
-                population.get(k).cell_move = 0;
-                for(int l = 0; l < maze.size; l++){
-                    for(int m = 0; m < maze.size; m++)
-                        population.get(k).visited[l][m] = 0;
-                }
-            }
+        for (int i = 0; i < individual_num; i++) {
 
-            for (int i = 0; i < individual_num; i++) {
-                run_x = 0;
-                run_y = maze.size - 1;
+            if(population.get(i).die)
+                continue;
 
-                gene_LOOP:
-                for (int j = 0; j < gene_num; j++) {
-                    switch (population.get(i).gene[j]) {
-                        case 0:
-                            if (maze.map[run_y][run_x].direction[population.get(i).gene[j]]) {
-                                run_x += 1;
-                                population.get(i).visited[run_y][run_x] += 1;
-                                population.get(i).cell_move += 1;
-                                if(run_x == maze.last_x && run_y == maze.last_y)
-                                    break gene_LOOP;
-                            }
-                            else {
-                                break gene_LOOP;
-                            }
+            switch (population.get(i).gene[gene_count]) {
+                case 0:
+                    if (maze.map[population.get(i).current_y][population.get(i).current_x].direction[population.get(i).gene[gene_count]]) {
+                        population.get(i).current_x += 1;
+                        population.get(i).visited[population.get(i).current_y][population.get(i).current_x] += 1;
+                        population.get(i).cell_move += 1;
+                        if(population.get(i).current_x == maze.last_x && population.get(i).current_y == maze.last_y) {
+                            population.get(i).die = true;
                             break;
-                        case 1:
-                            if (maze.map[run_y][run_x].direction[population.get(i).gene[j]]) {
-                                run_x -= 1;
-                                population.get(i).visited[run_y][run_x] += 1;
-                                population.get(i).cell_move += 1;
-                                if(run_x == maze.last_x && run_y == maze.last_y)
-                                    break gene_LOOP;
-                            }
-                            else {
-                                break gene_LOOP;
-                            }
-                            break;
-                        case 2:
-                            if (maze.map[run_y][run_x].direction[population.get(i).gene[j]]) {
-                                run_y -= 1;
-                                population.get(i).visited[run_y][run_x] += 1;
-                                population.get(i).cell_move += 1;
-                                if(run_x == maze.last_x && run_y == maze.last_y)
-                                    break gene_LOOP;
-                            }
-                            else {
-
-                                break gene_LOOP;
-                            }
-                            break;
-                        case 3:
-                            if (maze.map[run_y][run_x].direction[population.get(i).gene[j]]) {
-                                run_y += 1;
-                                population.get(i).visited[run_y][run_x] += 1;
-                                population.get(i).cell_move += 1;
-                                if(run_x == maze.last_x && run_y == maze.last_y)
-                                    break gene_LOOP;
-                            }
-                            else {
-                                break gene_LOOP;
-                            }
-                            break;
+                        }
                     }
-
-
-                }
-                population.get(i).die_x = run_x;
-                population.get(i).die_y = run_y;
-
+                    else {
+                        population.get(i).die = true;
+                        break;
+                    }
+                    break;
+                case 1:
+                    if (maze.map[population.get(i).current_y][population.get(i).current_x].direction[population.get(i).gene[gene_count]]) {
+                        population.get(i).current_x -= 1;
+                        population.get(i).visited[population.get(i).current_y][population.get(i).current_x] += 1;
+                        population.get(i).cell_move += 1;
+                        if(population.get(i).current_x == maze.last_x && population.get(i).current_y == maze.last_y) {
+                            population.get(i).die = true;
+                            break;
+                        }
+                    }
+                    else {
+                        population.get(i).die = true;
+                        break;
+                    }
+                    break;
+                case 2:
+                    if (maze.map[population.get(i).current_y][population.get(i).current_x].direction[population.get(i).gene[gene_count]]) {
+                        population.get(i).current_y -= 1;
+                        population.get(i).visited[population.get(i).current_y][population.get(i).current_x] += 1;
+                        population.get(i).cell_move += 1;
+                        if(population.get(i).current_x == maze.last_x && population.get(i).current_y == maze.last_y) {
+                            population.get(i).die = true;
+                            break;
+                        }
+                    }
+                    else {
+                        population.get(i).die = true;
+                        break;
+                    }
+                    break;
+                case 3:
+                    if (maze.map[population.get(i).current_y][population.get(i).current_x].direction[population.get(i).gene[gene_count]]) {
+                        population.get(i).current_y += 1;
+                        population.get(i).visited[population.get(i).current_y][population.get(i).current_x] += 1;
+                        population.get(i).cell_move += 1;
+                        if(population.get(i).current_x == maze.last_x && population.get(i).current_y == maze.last_y) {
+                            population.get(i).die = true;
+                            break;
+                        }
+                    }
+                    else {
+                        population.get(i).die = true;
+                        break;
+                    }
+                    break;
             }
+        }
 
-            replace();
 
-        } while (population.getFirst().cell_move != maze.last_map[maze.last_y][maze.last_x] || population.getFirst().die_x != maze.last_x || population.getFirst().die_y != maze.last_y);
     }
 
 
