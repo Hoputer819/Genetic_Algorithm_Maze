@@ -13,6 +13,7 @@ import javafx.scene.paint.Color;
 
 public class WindowGenerator extends Application{
     public static MazeGenerator maze;
+    GeneticMover genetic = new GeneticMover();
 
     @Override
     public void start(Stage stage) throws Exception {
@@ -26,9 +27,8 @@ public class WindowGenerator extends Application{
         int pen_y = 50;
         int cell_x = 500/maze.size;
         int cell_y = 500/maze.size;
-        int oval_x = pen_x + (cell_x/4);
-        int oval_y = pen_y + ((maze.size - 1) * cell_y) + (cell_y/4);
-
+        int oval_x = pen_x + (cell_x/2);
+        int oval_y = pen_y + ((maze.size - 1) * cell_y) + (cell_y/2);
 
         //창 이름
         stage.setTitle("Genetic_Algorithm");
@@ -37,10 +37,12 @@ public class WindowGenerator extends Application{
         root.setStyle("-fx-background-color: black;");
         line.setStroke(Color.WHITE);
         genetic_line.setFill(Color.WHITE);
+        genetic_line.setStroke(Color.WHITE);
 
         //기타 설정
         stage.setScene(mazeScene);
         root.getChildren().addAll(canvas,genetic_canvas);
+        genetic_line.setLineWidth(cell_x/2.0);
 
         //미로 그리기
         for(int i = 0; i < maze.size; i++){
@@ -81,15 +83,36 @@ public class WindowGenerator extends Application{
 
         stage.show();
 
-        genetic_line.fillOval(oval_x,oval_y,cell_x/2.0,cell_y/2.0);
 
         AnimationTimer timer = new AnimationTimer() {
+
             @Override
             public void handle(long l) {
+                boolean all_die = true;
+                for(int i = 0; i < genetic.individual_num; i++){
+                    if(genetic.population.get(i).die)
+                        continue;
+
+                    all_die = false;
+                    int bf_x = oval_x+cell_x*(genetic.population.get(i).current_x);
+                    int bf_y = oval_y+cell_y*(genetic.population.get(i).current_y);
+                    genetic.run(i);
+                    int af_x = oval_x+cell_x*(genetic.population.get(i).current_x);
+                    int af_y = oval_y+cell_y*(genetic.population.get(i).current_y);
+                    genetic_line.strokeLine(bf_x,bf_y,af_x,af_y);
+                }
+                genetic.gene_count++;
+                //System.out.println(genetic.gene_count);
+
+                if(all_die || genetic.gene_count == genetic.gene_num) {
+                    genetic_line.clearRect(0,0,600,600);
+                    genetic.replace();
+                }
 
             }
         };
 
+        timer.start();
 
     }
 }

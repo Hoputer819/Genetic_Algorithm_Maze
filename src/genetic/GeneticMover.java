@@ -9,15 +9,15 @@ public class GeneticMover {
     public static MazeGenerator maze;
     Random random = new Random();
 
-    int individual_num;
-    int gene_num;
+    public int individual_num;
+    public int gene_num;
     int elite_count;
-    int gene_count;
+    public int gene_count;
     double individual_mutation_rate;
     double gene_mutation_rate;
 
     //객체 리스트
-    ArrayList<Individual> population = new ArrayList<>();
+    public ArrayList<Individual> population = new ArrayList<>();
 
     //생성자
     public GeneticMover(){
@@ -36,7 +36,8 @@ public class GeneticMover {
     private void gene_reset(){
         for(int i =  0; i < individual_num; i++){
             for(int j = 0; j < gene_num; j++)
-                population.get(i).gene[j] = random.nextInt(4);
+                population.get(i).gene[j] = 0;
+                //population.get(i).gene[j] = random.nextInt(4);
         }
     }// 0 : 오른쪽, 1 : 왼쪽, 2 : 위, 3 : 아래
 
@@ -128,6 +129,8 @@ public class GeneticMover {
         crossover();
         mutation();
 
+        gene_count = 0;
+
         for(int k = 0; k < individual_num; k++){
             population.get(k).fitness = 0;
             population.get(k).cell_move = 0;
@@ -143,16 +146,14 @@ public class GeneticMover {
     }
 
     //개체 움직이기 메서드
-    public void run(){
-
-        for (int i = 0; i < individual_num; i++) {
+    public void run(int i){
 
             if(population.get(i).die)
-                continue;
+                return;
 
             switch (population.get(i).gene[gene_count]) {
                 case 0:
-                    if (maze.map[population.get(i).current_y][population.get(i).current_x].direction[population.get(i).gene[gene_count]]) {
+                    if (maze.map[population.get(i).current_y][population.get(i).current_x].wall[population.get(i).gene[gene_count]]) {
                         population.get(i).current_x += 1;
                         population.get(i).visited[population.get(i).current_y][population.get(i).current_x] += 1;
                         population.get(i).cell_move += 1;
@@ -167,7 +168,7 @@ public class GeneticMover {
                     }
                     break;
                 case 1:
-                    if (maze.map[population.get(i).current_y][population.get(i).current_x].direction[population.get(i).gene[gene_count]]) {
+                    if (maze.map[population.get(i).current_y][population.get(i).current_x].wall[population.get(i).gene[gene_count]]) {
                         population.get(i).current_x -= 1;
                         population.get(i).visited[population.get(i).current_y][population.get(i).current_x] += 1;
                         population.get(i).cell_move += 1;
@@ -182,7 +183,7 @@ public class GeneticMover {
                     }
                     break;
                 case 2:
-                    if (maze.map[population.get(i).current_y][population.get(i).current_x].direction[population.get(i).gene[gene_count]]) {
+                    if (maze.map[population.get(i).current_y][population.get(i).current_x].wall[population.get(i).gene[gene_count]]) {
                         population.get(i).current_y -= 1;
                         population.get(i).visited[population.get(i).current_y][population.get(i).current_x] += 1;
                         population.get(i).cell_move += 1;
@@ -197,7 +198,7 @@ public class GeneticMover {
                     }
                     break;
                 case 3:
-                    if (maze.map[population.get(i).current_y][population.get(i).current_x].direction[population.get(i).gene[gene_count]]) {
+                    if (maze.map[population.get(i).current_y][population.get(i).current_x].wall[population.get(i).gene[gene_count]]) {
                         population.get(i).current_y += 1;
                         population.get(i).visited[population.get(i).current_y][population.get(i).current_x] += 1;
                         population.get(i).cell_move += 1;
@@ -212,7 +213,6 @@ public class GeneticMover {
                     }
                     break;
             }
-        }
 
 
     }
