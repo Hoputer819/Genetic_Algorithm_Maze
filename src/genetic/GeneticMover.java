@@ -23,8 +23,8 @@ public class GeneticMover {
     public GeneticMover(){
         individual_num =  (maze.size * maze.size) / 2;
         gene_num = (maze.size * maze.size) * 2;
-        individual_mutation_rate = 1.0 / (2 * maze.size);
-        gene_mutation_rate = 1.0 * (maze.size) / gene_num;
+        individual_mutation_rate = 2.0 / (2 * maze.size);
+        gene_mutation_rate = 2.0 * (maze.size) / gene_num;
         elite_count = maze.size >= 10  ? (int)(individual_num * 0.1) : 2;
         for(int i = 0; i < individual_num; i++){
             population.add(new Individual(gene_num, maze.size));
@@ -59,13 +59,13 @@ public class GeneticMover {
                         visit_again += (population.get(i).visited[j][k] - 1);
                 }
             }
-            population.get(i).fitness -= visit_again * 10;
+            population.get(i).fitness -= visit_again * 30;
 
             //목적지와의 거리(BFS 활용) +
-            population.get(i).fitness += (max_distance - maze.back_map[population.get(i).current_y][population.get(i).current_x]) * 20;
+            population.get(i).fitness += (max_distance - maze.back_map[population.get(i).current_y][population.get(i).current_x]) * 50;
 
             //움직인 칸 수 +
-            population.get(i).fitness += population.get(i).cell_move * 10;
+            population.get(i).fitness += population.get(i).cell_move * 20;
 
             //목적지 도착 +
             if(population.get(i).current_x == maze.last_x && population.get(i).current_y == maze.last_y) {

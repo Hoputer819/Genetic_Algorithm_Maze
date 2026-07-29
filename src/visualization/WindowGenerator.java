@@ -14,6 +14,7 @@ import javafx.scene.paint.Color;
 public class WindowGenerator extends Application{
     public static MazeGenerator maze;
     GeneticMover genetic = new GeneticMover();
+    AnimationTimer timer;
 
     @Override
     public void start(Stage stage) throws Exception {
@@ -28,7 +29,7 @@ public class WindowGenerator extends Application{
         int cell_x = 500/maze.size;
         int cell_y = 500/maze.size;
         int oval_x = pen_x + (cell_x/2);
-        int oval_y = pen_y + ((maze.size - 1) * cell_y) + (cell_y/2);
+        int oval_y = pen_y + (cell_y/2);
 
         //창 이름
         stage.setTitle("Genetic_Algorithm");
@@ -84,31 +85,35 @@ public class WindowGenerator extends Application{
         stage.show();
 
 
-        AnimationTimer timer = new AnimationTimer() {
+        timer = new AnimationTimer() {
 
             @Override
             public void handle(long l) {
                 boolean all_die = true;
-                for(int i = 0; i < genetic.individual_num; i++){
-                    if(genetic.population.get(i).die)
-                        continue;
+                for (int j = 0; j < 20; j++) {
+                    for (int i = 0; i < genetic.individual_num; i++) {
+                        if (genetic.population.get(i).die)
+                            continue;
 
-                    all_die = false;
-                    int bf_x = oval_x+cell_x*(genetic.population.get(i).current_x);
-                    int bf_y = oval_y+cell_y*(genetic.population.get(i).current_y);
-                    genetic.run(i);
-                    int af_x = oval_x+cell_x*(genetic.population.get(i).current_x);
-                    int af_y = oval_y+cell_y*(genetic.population.get(i).current_y);
-                    genetic_line.strokeLine(bf_x,bf_y,af_x,af_y);
+                        all_die = false;
+                        int bf_x = oval_x + cell_x * (genetic.population.get(i).current_x);
+                        int bf_y = oval_y + cell_y * (genetic.population.get(i).current_y);
+                        genetic.run(i);
+                        int af_x = oval_x + cell_x * (genetic.population.get(i).current_x);
+                        int af_y = oval_y + cell_y * (genetic.population.get(i).current_y);
+                        genetic_line.strokeLine(bf_x, bf_y, af_x, af_y);
+
+                        if (genetic.population.get(i).current_x == maze.last_x && genetic.population.get(i).current_y == maze.last_y)
+                            timer.stop();
+                    }
+                    genetic.gene_count++;
+
+                    if (all_die || genetic.gene_count == genetic.gene_num) {
+                        genetic_line.clearRect(0, 0, 600, 600);
+                        genetic.replace();
+                    }
+
                 }
-                genetic.gene_count++;
-                //System.out.println(genetic.gene_count);
-
-                if(all_die || genetic.gene_count == genetic.gene_num) {
-                    genetic_line.clearRect(0,0,600,600);
-                    genetic.replace();
-                }
-
             }
         };
 

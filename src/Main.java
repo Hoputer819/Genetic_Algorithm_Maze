@@ -6,13 +6,10 @@ import genetic.GeneticMover;
 public class Main {
     public static void main(String[] args) {
 
-        long startTime = System.currentTimeMillis();
 
-        MazeGenerator maze = new MazeGenerator(5);
+        MazeGenerator maze = new MazeGenerator(10);
         maze.generate();
 
-        long endTime = System.currentTimeMillis();
-        long duration = endTime - startTime;
 
         GeneticMover.maze = maze;
         WindowGenerator.maze = maze;
